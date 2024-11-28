@@ -43,7 +43,6 @@
   </div>
 </template>
 
-
 <script>
 import axios from 'axios';
 
@@ -53,59 +52,70 @@ export default {
       className: '',
       capacity: '',
       classes: [],
-      capacityError: '',  // Track error for capacity validation
+      capacityError: '',  
+      token: localStorage.getItem('jwtToken') || '',  // Retrieve token from localStorage
     };
   },
   methods: {
-  async createClass() {
-    // Reset error message
-    this.capacityError = '';
+    async createClass() {
+      // Reset error message
+      this.capacityError = '';
 
-    // Validate inputs
-    if (!this.className || !this.capacity) {
-      this.capacityError = 'Missing class name or capacity';
-      return;
-    }
+      // Validate inputs
+      if (!this.className || !this.capacity) {
+        this.capacityError = 'Missing class name or capacity';
+        return;
+      }
 
-    // Ensure capacity is a positive number
-    if (this.capacity <= 0) {
-      this.capacityError = 'Capacity must be a positive number';
-      return;
-    }
+      // Ensure capacity is a positive number
+      if (this.capacity <= 0) {
+        this.capacityError = 'Capacity must be a positive number';
+        return;
+      }
 
-    try {
-      // Make the API request to create the class
-      const response = await axios.post('http://localhost/CheckEaseExp-NEW/vue-login-backend/createclass.php', {
-        className: this.className,
-        capacity: this.capacity,
-      });
+      // Check if token exists
+      if (!this.token) {
+        alert('You must be logged in to create a class');
+        return;
+      }
 
-      // Process the response from the server
-      const result = response.data;
-      console.log('Response Data:', result);
-
-      if (result.success) {
-        alert('Class created successfully!');
-        this.classes.push({
-          class_name: this.className,
+      try {
+        // Make the API request to create the class with token authentication
+        const response = await axios.post('http://localhost/CheckEaseExp-NEW/vue-login-backend/createclass.php', {
+          className: this.className,
           capacity: this.capacity,
-          class_code: result.class_code,
+        }, {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${this.token}`,  // Pass the token
+          }
         });
 
-        // Reset form fields after successful submission
-        this.className = '';
-        this.capacity = '';
-      } else {
-        alert(result.error || 'Failed to create class');
+        const result = response.data;
+        console.log('Response Data:', result);
+
+        if (result.success) {
+          alert('Class created successfully!');
+          this.classes.push({
+            class_name: this.className,
+            capacity: this.capacity,
+            class_code: result.class_code,
+          });
+
+          this.className = '';
+          this.capacity = '';
+        } else {
+          alert(result.error || 'Failed to create class');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Error occurred while creating the class.');
       }
-    } catch (error) {
-      console.error('Error:', error);
-      alert('Error occurred while creating the class.');
-    }
+    },
   },
-},
 };
 </script>
+
 
 <style scoped>
 .container {

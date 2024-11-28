@@ -72,16 +72,22 @@ export default {
         console.log(result); // Debugging: log the response to ensure redirect URL is present
 
         if (result.success) {
-          // Store the token in localStorage for consistent storage with router
+          // Store the token and user details in localStorage
           localStorage.setItem('jwtToken', result.token);
           localStorage.setItem('firstname', result.firstname); // First name
           localStorage.setItem('lastname', result.lastname);   // Last name
+          localStorage.setItem('email', result.email);         // Email
 
+          // Create the full name for easy access
           const fullName = `${result.firstname} ${result.lastname}`;
           localStorage.setItem('userFullName', fullName);
-        
+
+          // Optionally store the user role for redirection
+          localStorage.setItem('role', result.role); // Assuming the backend sends the user role
+
+          // Redirect based on the role
           if (result.redirect) {
-            this.$router.push(response.data.redirect); // Remove the leading slash
+            this.$router.push(result.redirect); // Ensure the redirect URL is correct (no leading slash)
           } else {
             console.warn('No redirect path specified in response.');
           }
@@ -96,6 +102,7 @@ export default {
   }
 };
 </script>
+
 
 <style scoped>
 .background-container {
@@ -132,7 +139,7 @@ export default {
   position: absolute;
   background-color: rgba(0, 123, 255, 0.1);
   opacity: 0.5;
-  border-radius: 10;
+  border-radius: 10%;
 }
 
 .square-1 { width: 100px; height: 100px; top: 10%; left: 10%; }

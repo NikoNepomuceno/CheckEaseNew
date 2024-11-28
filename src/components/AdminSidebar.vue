@@ -1,4 +1,3 @@
-Richard Del Carmen Jr.
 <template>
   <div class=" postion-fixed">
     <!-- Hamburger Icon for Mobile -->
@@ -105,7 +104,10 @@ export default {
     };
   },
   mounted() {
+    // Combine the two mounted actions into one
     this.handleResize();
+    this.loadUserInfo();
+    console.log(localStorage.getItem('email')); // Check if the email is correctly loaded from localStorage
     window.addEventListener('resize', this.handleResize);
   },
   beforeDestroy() {
@@ -128,9 +130,19 @@ export default {
     isActive(route) {
       return this.$route.path === route;
     },
+    loadUserInfo() {
+      // Load user info from localStorage or set default
+      const firstName = localStorage.getItem('firstname') || 'Guest';
+      const lastName = localStorage.getItem('lastname') || '';
+      const email = localStorage.getItem('email') || '';
+
+      // Update the userInfo object
+      this.userInfo = { firstName, lastName, email };
+    },
   },
 };
 </script>
+
 
 <style scoped>
 .sidebar {

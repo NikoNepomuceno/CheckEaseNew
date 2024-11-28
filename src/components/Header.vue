@@ -24,35 +24,44 @@
     <!-- Account Information -->
     <div class="account-info d-flex flex-column justify-content-center bg-light px-3 shadow-account"
          style="height: 50px; width: 270px; border-radius: 20px;">
-      <span class="fw-bold">{{ userLastName }}, {{ userFirstName }}</span> 
-      <span>202xxxxxxx@gordoncollege.edu.ph</span> 
+      <span class="fw-bold">{{userInfo.lastName }}, {{ userInfo.firstName}}</span> 
+      <span>{{userInfo.email }}</span> 
     </div>
   </header>
 </template>
 
 <script>
-
 export default {
-  name: "Header",
   data() {
     return {
-      userFirstName: '', // Store user's first name locally
-      userLastName: '',  // Store user's last name locally
+      userInfo: {
+        firstName: '',
+        lastName: '',
+        email: ''
+      }
     };
   },
-  created() {
-    // Fetch user information from a global state or API if available
-    this.getUserInfo();
+  computed: {
+    cardTitle() {
+      switch (this.$route.path) {
+        case '/clearance':
+          return 'Clearance';
+        case '/ClearanceRecord':
+          return 'Clearance';
+        case '/attendance':
+          return 'Attendance';
+        case '/home':
+          return 'Dashboard';
+        case '/class':
+          return 'Create & View Class';
+        case '/ViewStudentAttendance':
+          return 'View Student Attendance';
+        default:
+          return 'Dashboard';
+      }
+    }
   },
   methods: {
-    getUserInfo() {
-      // Simulating fetching user data (replace with actual implementation)
-      const userData = JSON.parse(localStorage.getItem("userData")); // Example: stored in localStorage
-      if (userData) {
-        this.userFirstName = userData.firstname || '';
-        this.userLastName = userData.lastname || '';
-      }
-    },
     toggleDropdown() {
       const dropdownElement = this.$refs.dropdown;
       const dropdownMenu = this.$refs.dropdownMenu;
@@ -66,7 +75,24 @@ export default {
         dropdownElement.setAttribute('aria-expanded', 'true');
       }
     },
+    loadUserInfo() {
+      console.log('Loading user info...');
+      const firstName = localStorage.getItem('firstname') || 'Guest';
+      const lastName = localStorage.getItem('lastname') || '';
+      const email = localStorage.getItem('email') || '';
+
+      console.log('Email from localStorage:', email);  
+      this.userInfo = { firstName, lastName, email };  
+    }
   },
+  mounted() {
+    this.loadUserInfo();
+    console.log(localStorage.getItem('email')); 
+    window.addEventListener('storage', this.loadUserInfo);
+  },
+  beforeUnmount() {
+    window.removeEventListener('storage', this.loadUserInfo); 
+  }
 };
 </script>
 

@@ -1,14 +1,10 @@
 <template>
   <div class="header-container">
-    <!-- Main Card Header -->
     <div class="card header-card">
       <div class="card-body d-flex align-items-center justify-content-between">
-        <!-- Dashboard Title -->
-        <h3 class="card-title mb-0 d-none d-sm-block"><b>{{ cardTitle }}</b></h3> 
+        <h3 class="card-title mb-0 d-none d-sm-block"><b>{{ cardTitle }}</b></h3>
 
-        <!-- Profile Section -->
         <div class="profile-section d-flex align-items-center">
-          <!-- Email Notification Dropdown -->
           <div class="dropdown me-3 position-relative" ref="dropdown">
             <button
               class="btn btn-light p-0 position-relative"
@@ -25,7 +21,6 @@
                 <span class="visually-hidden">New notifications</span>
               </span>
             </button>
-            <!-- Dropdown items -->
             <ul class="dropdown-menu" ref="dropdownMenu">
               <li><a class="dropdown-item" href="#">No new notifications</a></li>
               <li><a class="dropdown-item" href="#">Another notification</a></li>
@@ -33,13 +28,13 @@
             </ul>
           </div>
 
-          <!-- User Info -->
           <div class="user-info d-flex align-items-center">
             <i class="material-icons">account_circle</i>
-            <div class="ms-2">
-              <strong>L.Name, Fname M.I.</strong><br />
-              <small>202xxxxxx@yourdomain.edu.ph</small>
-            </div>
+           <div class="account-info d-flex flex-column justify-content-center bg-light px-3 shadow-account"
+         style="height: 50px; width: 270px; border-radius: 20px;">
+      <span class="fw-bold">{{userInfo.lastName }}, {{ userInfo.firstName}}</span> 
+      <span>{{userInfo.email }}</span> 
+    </div>
           </div>
         </div>
       </div>
@@ -49,11 +44,19 @@
 
 <script>
 export default {
-  name: 'AdminHeader',
+  data() {
+    return {
+      userInfo: {
+        firstName: '',
+        lastName: '',
+        email: ''
+      }
+    };
+  },
   computed: {
     cardTitle() {
       switch (this.$route.path) {
-        case '/clearance' :
+        case '/clearance':
           return 'Clearance';
         case '/ClearanceRecord':
           return 'Clearance';
@@ -83,10 +86,28 @@ export default {
         dropdownElement.classList.add('show');
         dropdownElement.setAttribute('aria-expanded', 'true');
       }
+    },
+    loadUserInfo() {
+      console.log('Loading user info...');
+      const firstName = localStorage.getItem('firstname') || 'Guest';
+      const lastName = localStorage.getItem('lastname') || '';
+      const email = localStorage.getItem('email') || '';
+
+      console.log('Email from localStorage:', email);  
+      this.userInfo = { firstName, lastName, email };  
     }
+  },
+  mounted() {
+    this.loadUserInfo();
+    console.log(localStorage.getItem('email')); 
+    window.addEventListener('storage', this.loadUserInfo);
+  },
+  beforeUnmount() {
+    window.removeEventListener('storage', this.loadUserInfo); 
   }
 };
 </script>
+
 
 <style scoped>
 .header-container {

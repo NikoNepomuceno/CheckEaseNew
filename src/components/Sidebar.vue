@@ -55,6 +55,7 @@
 export default {
   name: "Sidebar",
   data() {
+    
     return {
       isCollapsed: true,
       isPhoneView: window.innerWidth <= 768,

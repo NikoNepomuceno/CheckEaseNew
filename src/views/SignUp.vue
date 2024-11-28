@@ -115,9 +115,12 @@ export default {
     window.removeEventListener('resize', this.checkScreenSize);
   },
   methods: {
+    // Check if screen size is larger than 768px for displaying info section
     checkScreenSize() {
       this.showInfoSection = window.innerWidth >= 768;
     },
+
+    // Validate the form before submission
     validateForm() {
       const nameRegex = /^[A-Za-z\s]+$/;  
       this.nameError = ''; 
@@ -128,19 +131,23 @@ export default {
         return false;
       }
 
-     
+      // Name format validation (letters and spaces only)
       if (!nameRegex.test(this.firstname) || !nameRegex.test(this.lastname)) {
         this.nameError = 'First and last name can only contain letters and spaces.';
         return false;
       }
 
-      if (this.passwordMismatch) {
+      // Password mismatch check
+      if (this.password !== this.confirmPassword) {
+        this.passwordMismatch = true;
         alert('Passwords do not match.');
         return false;
       }
 
       return true;
     },
+
+    // Submit the form data
     async submitForm() {
       if (!this.validateForm()) {
         return;
@@ -158,22 +165,23 @@ export default {
         const result = response.data;
 
         if (result.success) {
+          // Store the email and other user details in localStorage
+          localStorage.setItem('jwtToken', result.token);
+          localStorage.setItem('firstname', result.firstname);
+          localStorage.setItem('lastname', result.lastname);
+          localStorage.setItem('email', result.email);  // Store email here
+
           this.$router.push('/login');
         } else {
           alert(result.message);
         }
       } catch (error) {
-        if (error.response) {
-          alert(`Server responded with an error: ${error.response.data.message || error.response.status}`);
-        } else if (error.request) {
-          alert('No response from server. Please check your network connection.');
-        } else {
-          alert(`Error: ${error.message}`);
-        }
+        alert(`Error: ${error.message}`);
       }
-    },
+    }
   },
   watch: {
+    // Watch for password and confirm password changes to check for mismatch
     password(newVal) {
       this.passwordMismatch = this.password !== this.confirmPassword;
     },
@@ -183,6 +191,8 @@ export default {
   },
 };
 </script>
+
+
 
 <style scoped>
 body {
