@@ -55,30 +55,32 @@
 export default {
   name: "Sidebar",
   data() {
-    
     return {
       isCollapsed: true,
       isPhoneView: window.innerWidth <= 768,
-      showDialog: false, // To control the visibility of the dialog
+      showDialog: false, 
     };
   },
   methods: {
     toggleSidebar() {
-      this.isCollapsed = !this.isCollapsed; // Toggle sidebar visibility
+      this.isCollapsed = !this.isCollapsed; 
     },
     confirmLogout() {
-      // Show the dialog when the user clicks the logout button
+
       this.showDialog = true;
     },
     closeDialog() {
-      // Close the dialog without logging out
+     
       this.showDialog = false;
     },
     logout() {
-      // Proceed with logout and close the dialog
-      localStorage.removeItem("authToken");
-      this.$router.push("/Login");
-      this.showDialog = false; // Close the dialog after logout
+   
+      localStorage.removeItem("token");
+      localStorage.removeItem("role");
+      localStorage.removeItem("userFullName");  
+
+      this.$router.push({ name: 'Login' });
+      this.showDialog = false;
     },
     updateView() {
       this.isPhoneView = window.innerWidth <= 768;
@@ -91,13 +93,14 @@ export default {
   },
   mounted() {
     window.addEventListener("resize", this.updateView);
-    this.updateView(); // Ensure initial state is set correctly
+    this.updateView(); 
   },
   beforeDestroy() {
     window.removeEventListener("resize", this.updateView);
   },
 };
 </script>
+
 <style scoped>
 .dialog-overlay {
   position: fixed;
@@ -105,7 +108,7 @@ export default {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.7); /* Semi-transparent overlay */
+  background: rgba(0, 0, 0, 0.7); 
   display: flex;
   justify-content: center;
   align-items: center;

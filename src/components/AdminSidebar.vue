@@ -114,20 +114,19 @@ export default {
       showDialog: false,
     };
   },
-  
+
   mounted() {
     this.handleResize();
     this.loadUserInfo();
-    console.log(localStorage.getItem('email')); 
+    console.log(localStorage.getItem('email'));
     window.addEventListener('resize', this.handleResize);
   },
   beforeDestroy() {
     window.removeEventListener('resize', this.handleResize);
   },
   methods: {
-
     toggleSidebar() {
-      this.isCollapsed = !this.isCollapsed; 
+      this.isSidebarHidden = !this.isSidebarHidden;  
     },
     confirmLogout() {
       this.showDialog = true;
@@ -136,14 +135,12 @@ export default {
       this.showDialog = false;
     },
     logout() {
-      localStorage.removeItem("authToken");
+      localStorage.removeItem("token");
+      localStorage.removeItem("role");
       this.$router.push("/Login");
       this.showDialog = false; 
     },
 
-    toggleSidebar() {
-    this.isSidebarHidden = !this.isSidebarHidden;
-    },
     toggleAttendanceDropdown() {
       this.isAttendanceDropdownOpen = !this.isAttendanceDropdownOpen;
     },
@@ -154,12 +151,9 @@ export default {
       return this.$route.path === route;
     },
     loadUserInfo() {
-      // Load user info from localStorage or set default
       const firstName = localStorage.getItem('firstname') || 'Guest';
       const lastName = localStorage.getItem('lastname') || '';
       const email = localStorage.getItem('email') || '';
-
-      // Update the userInfo object
       this.userInfo = { firstName, lastName, email };
     },
   },

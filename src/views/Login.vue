@@ -61,7 +61,7 @@ export default {
     return {
       email: '',
       password: '',
-      errorMessage: '', 
+      errorMessage: '',
     };
   },
   methods: {
@@ -75,33 +75,40 @@ export default {
         const result = response.data;
 
         if (result.success) {
-          // Store the token and user details in localStorage
-          localStorage.setItem('jwtToken', result.token);
-          localStorage.setItem('firstname', result.firstname); 
-          localStorage.setItem('lastname', result.lastname);   
-          localStorage.setItem('email', result.email);        
-          const fullName = `${result.firstname} ${result.lastname}`;
+         
+          localStorage.setItem('token', result.token);  
+          localStorage.setItem('role', result.role); 
 
+          // Optional: Store additional user information (e.g., name or email)
+          localStorage.setItem('firstname', result.firstname);
+          localStorage.setItem('lastname', result.lastname);
+          localStorage.setItem('email', result.email);
+
+      
+          const fullName = `${result.firstname} ${result.lastname}`;
           localStorage.setItem('userFullName', fullName);
 
-          localStorage.setItem('role', result.role);
-
-          if (result.redirect) {
-            this.$router.push(result.redirect); 
+          if (result.role === 'teacher') {
+            this.$router.push({ name: 'Home' });
+          } else if (result.role === 'student') {
+            this.$router.push({ name: 'StudentHome' });
           } else {
-            console.warn('No redirect path specified in response.');
+            console.warn('No role or redirect path specified in response.');
           }
         } else {
-          this.errorMessage = 'The email address or password you entered is incorrect. Please verify your credentials and try again.'; 
+  
+          this.errorMessage = 'The email address or password you entered is incorrect. Please verify your credentials and try again.';
         }
       } catch (error) {
+       
         console.error('Error:', error);
-        this.errorMessage = 'Something went wrong, please try again.'; 
+        this.errorMessage = 'Something went wrong, please try again.';
       }
     },
   },
 };
 </script>
+
 
 <style scoped>
 

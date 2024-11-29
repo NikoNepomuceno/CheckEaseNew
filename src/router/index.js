@@ -11,10 +11,13 @@ import Login from '@/views/Login.vue';
 import SignUp from '@/views/SignUp.vue';
 import CreateClass from '@/views/CreateClass.vue';
 
-// Function to check if user is authenticated
+
 function isAuthenticated() {
-  // Example check, replace with your actual logic
-  return localStorage.getItem('userLoggedIn') === 'true'; // Adjust according to your logic
+  return localStorage.getItem('token') !== null;  
+}
+
+function getUserRole() {
+  return localStorage.getItem('role'); 
 }
 
 const routes = [
@@ -23,63 +26,58 @@ const routes = [
     redirect: '/login', 
   },
   {
-    path: '/:catchAll(.*)',
-    redirect: '/login', 
-  },
-  
-  {
     path: '/Home',
     name: 'Home',
     component: HomeView,
-    meta: { requiresAuth: true }  
+    meta: { requiresAuth: true, requiresRole: 'teacher' }  
   },
   {
     path: '/attendance',
     name: 'Attendance',
     component: AttendanceView,
-    meta: { requiresAuth: true }  
+    meta: { requiresAuth: true, requiresRole: 'teacher' }  
   },
   {
     path: '/clearance',
     name: 'Clearance',
     component: ClearanceView,
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true, requiresRole: 'teacher' }
   },
   {
     path: '/StudentHome',
     name: 'StudentHome',
     component: StdntHomeView,
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true, requiresRole: 'student' }
   },
   {
     path: '/StudentClearance',
     name: 'StudentClearance',
     component: StdntClearanceView,
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true, requiresRole: 'student' }
   },
   {
     path: '/StudentAttendance',
     name: 'StudentAttendance',
     component: StdntAttendanceView,
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true, requiresRole: 'student' }
   },
   {
     path: '/ViewStudentAttendance',
     name: 'StudentAttendanceCheck',
     component: ViewStdntAttendance,
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true, requiresRole: 'student' }
   },
   {
     path: '/ClearanceRecord',
     name: 'ClearanceRecord',
     component: ClearanceRecord,
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true, requiresRole: 'teacher' }
   },
   {
     path: '/Class',
     name: 'Class',
     component: CreateClass,
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true, requiresRole: 'teacher' }
   },
   {
     path: '/login',
@@ -93,6 +91,11 @@ const routes = [
     component: SignUp,
     meta: { layout: 'empty' },
   },
+
+  {
+    path: '/:catchAll(.*)',
+    redirect: '/login', 
+  },
 ];
 
 const router = createRouter({
@@ -102,14 +105,31 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   console.log(`Trying to navigate to: ${to.name}`);
+  console.log('Auth Token:', localStorage.getItem('token'));  
+  console.log('User Role:', localStorage.getItem('role'));    
 
   if (to.meta.requiresAuth && !isAuthenticated()) {
     console.log('Not authenticated, redirecting to login');
-    next({ name: 'Login' }); 
+    next({ name: 'Login' });
+  } else if (to.name === 'Login' && isAuthenticated()) {
+    console.log('Already authenticated, redirecting to home');
+    const role = getUserRole();
+    console.log('Redirecting based on role:', role);
+
+    if (role === 'teacher') {
+      next({ name: 'Home' });
+    } else if (role === 'student') {
+      next({ name: 'StudentHome' });
+    } else {
+      console.warn('Role not found, redirecting to login');
+      next({ name: 'Login' });
+    }
+  } else if (to.meta.requiresRole && getUserRole() !== to.meta.requiresRole) {
+    console.log('User does not have the right role, redirecting to login');
+    next({ name: 'Login' });
   } else {
-    next(); 
+    next();
   }
 });
-
 
 export default router;
