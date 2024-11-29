@@ -53,15 +53,13 @@ export default {
       capacity: '',
       classes: [],
       capacityError: '',  
-      token: localStorage.getItem('jwtToken') || '',  // Retrieve token from localStorage
+      token: localStorage.getItem('token') || '',  
     };
   },
   methods: {
     async createClass() {
-      // Reset error message
       this.capacityError = '';
-
-      // Validate inputs
+      
       if (!this.className || !this.capacity) {
         this.capacityError = 'Missing class name or capacity';
         return;
@@ -73,7 +71,6 @@ export default {
         return;
       }
 
-      // Check if token exists
       if (!this.token) {
         alert('You must be logged in to create a class');
         return;
