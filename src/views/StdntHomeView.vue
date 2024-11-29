@@ -54,8 +54,8 @@ export default {
   name: "HomeView",
   data() {
     return {
-      firstname: '',  // Corrected property name
-      lastname: '',   // Corrected property name
+      firstname: '',  
+      lastname: '',   
       cards: [
         {
           title: "??/?? of your Classes are Cleared!",

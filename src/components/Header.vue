@@ -24,8 +24,8 @@
     <!-- Account Information -->
     <div class="account-info d-flex flex-column justify-content-center bg-light px-3 shadow-account"
          style="height: 50px; width: 270px; border-radius: 20px;">
-      <span class="fw-bold">{{userInfo.lastName }}, {{ userInfo.firstName}}</span> 
-      <span>{{userInfo.email }}</span> 
+      <span class="fw-bold">{{ userInfo.lastName }}, {{ userInfo.firstName }}</span> 
+      <div id="email-display">{{ userInfo.email }}</div> 
     </div>
   </header>
 </template>
@@ -40,26 +40,6 @@ export default {
         email: ''
       }
     };
-  },
-  computed: {
-    cardTitle() {
-      switch (this.$route.path) {
-        case '/clearance':
-          return 'Clearance';
-        case '/ClearanceRecord':
-          return 'Clearance';
-        case '/attendance':
-          return 'Attendance';
-        case '/home':
-          return 'Dashboard';
-        case '/class':
-          return 'Create & View Class';
-        case '/ViewStudentAttendance':
-          return 'View Student Attendance';
-        default:
-          return 'Dashboard';
-      }
-    }
   },
   methods: {
     toggleDropdown() {
@@ -76,26 +56,32 @@ export default {
       }
     },
     loadUserInfo() {
-      console.log('Loading user info...');
-      const firstName = localStorage.getItem('firstname') || 'Guest';
-      const lastName = localStorage.getItem('lastname') || '';
-      const email = localStorage.getItem('email') || '';
+    const firstName = localStorage.getItem('firstname') || 'Guest';
+    const lastName = localStorage.getItem('lastname') || '';
+    const email = localStorage.getItem('email');
 
-      console.log('Email from localStorage:', email);  
-      this.userInfo = { firstName, lastName, email };  
+    if (!email) {
+      console.log("Email is missing from localStorage");
+      this.userInfo.email = 'No email provided';  
+      this.$router.push('/login'); 
+
+    } else {
+      this.userInfo.email = email;
     }
-  },
+    this.userInfo = { firstName, lastName, email };
+    document.getElementById('email-display').textContent = `Stored Email: ${email}`;
+  }
+},
+
   mounted() {
     this.loadUserInfo();
-    console.log(localStorage.getItem('email')); 
     window.addEventListener('storage', this.loadUserInfo);
   },
   beforeUnmount() {
-    window.removeEventListener('storage', this.loadUserInfo); 
+    window.removeEventListener('storage', this.loadUserInfo);
   }
 };
 </script>
-
 
 <style scoped>
 .header {
@@ -105,6 +91,7 @@ export default {
   z-index: 1000; 
   background: transparent; 
   border: none;
+  overflow: hidden; 
 }
 
 .material-icons {

@@ -5,7 +5,7 @@
     </div>
 
     <div class="container d-flex justify-content-center align-items-center min-vh-1000 position-absolute top-50 start-50 translate-middle">
-      <div class="box-container w-100 " style="max-width: 400px;">
+      <div class="box-container w-100" style="max-width: 400px;">
         <!-- Logo Section -->
         <div class="mb-4 text-center">
           <img src="/public/images/checkEaseLogo.png" alt="logo here" class="img-fluid" style="max-width: 100%; height: auto;" />
@@ -39,6 +39,9 @@
           <!-- Submit Button -->
           <button type="submit" class="btn btn-primary w-100">LOG IN</button>
 
+          <!-- Inline Error Message -->
+          <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
+
           <!-- Copyright -->
           <div class="text-center mt-4">
             <small class="text-muted">&copy;2024 Databoys</small>
@@ -57,7 +60,8 @@ export default {
   data() {
     return {
       email: '',
-      password: ''
+      password: '',
+      errorMessage: '', 
     };
   },
   methods: {
@@ -65,46 +69,100 @@ export default {
       try {
         const response = await axios.post('http://localhost/CheckEaseExp-NEW/vue-login-backend/login.php', {
           email: this.email,
-          password: this.password
+          password: this.password,
         });
 
         const result = response.data;
-        console.log(result); // Debugging: log the response to ensure redirect URL is present
 
         if (result.success) {
           // Store the token and user details in localStorage
           localStorage.setItem('jwtToken', result.token);
-          localStorage.setItem('firstname', result.firstname); // First name
-          localStorage.setItem('lastname', result.lastname);   // Last name
-          localStorage.setItem('email', result.email);         // Email
-
-          // Create the full name for easy access
+          localStorage.setItem('firstname', result.firstname); 
+          localStorage.setItem('lastname', result.lastname);   
+          localStorage.setItem('email', result.email);        
           const fullName = `${result.firstname} ${result.lastname}`;
+
           localStorage.setItem('userFullName', fullName);
 
-          // Optionally store the user role for redirection
-          localStorage.setItem('role', result.role); // Assuming the backend sends the user role
+          localStorage.setItem('role', result.role);
 
-          // Redirect based on the role
           if (result.redirect) {
-            this.$router.push(result.redirect); // Ensure the redirect URL is correct (no leading slash)
+            this.$router.push(result.redirect); 
           } else {
             console.warn('No redirect path specified in response.');
           }
         } else {
-          alert(result.message); // Display error message from server
+          this.errorMessage = 'The email address or password you entered is incorrect. Please verify your credentials and try again.'; 
         }
       } catch (error) {
         console.error('Error:', error);
-        alert('An error occurred. Please try again.');
+        this.errorMessage = 'Something went wrong, please try again.'; 
       }
-    }
-  }
+    },
+  },
 };
 </script>
 
-
 <style scoped>
+
+.error-message {
+  color: #ff4d4d;
+  font-size: 14px;
+  text-align: center;
+  margin-top: 10px;
+}
+
+.modal-content {
+  background-color: #f8f9fa;
+  border-radius: 10px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+}
+
+.modal-header {
+  background-color: #ff4d4d;
+  color: white;
+  border-bottom: 1px solid #e6e6e6;
+  padding: 15px;
+}
+
+.modal-title {
+  font-weight: bold;
+}
+
+.modal-body {
+  padding: 20px;
+}
+
+.modal-footer {
+  padding: 10px;
+  border-top: 1px solid #e6e6e6;
+}
+
+.modal-footer .btn {
+  background-color: #ff4d4d;
+  color: white;
+  width: 100%;
+}
+
+.modal-footer .btn:hover {
+  background-color: #ff2a2a;
+}
+
+.modal.show {
+  display: block;
+  z-index: 1050;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.modal-dialog {
+  max-width: 400px;
+  margin: auto;
+}
+
+.modal-body p {
+  font-size: 14px;
+  color: #333;
+}
 .background-container {
   position: fixed;
   z-index: -1;

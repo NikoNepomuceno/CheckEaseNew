@@ -114,8 +114,8 @@ export default {
   position: fixed;
   top: 0;
   right: 0;
-  left: 250px; /* Adjust based on sidebar width */
-  width: calc(100% - 250px); /* Adjust based on sidebar width */
+  left: 250px; 
+  width: calc(100% - 250px); 
   padding: 10px 20px;
   z-index: 1000;
   transition: all 0.3s ease;
@@ -169,8 +169,8 @@ export default {
 
 @media (max-width: 992px) {
   .header-container {
-    left: 80px; /* Adjust based on collapsed sidebar width */
-    width: calc(100% - 80px); /* Adjust based on collapsed sidebar width */
+    left: 80px; 
+    width: calc(100% - 80px);
   }
 }
 
@@ -205,7 +205,7 @@ export default {
     left: 0;
     width: 100%;
     padding: 10px;
-    z-index: 999; /* Ensure header is below the hamburger menu */
+    z-index: 999;
   }
 
   .card-title {

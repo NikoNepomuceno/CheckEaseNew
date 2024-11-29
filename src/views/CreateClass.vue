@@ -80,14 +80,13 @@ export default {
       }
 
       try {
-        // Make the API request to create the class with token authentication
         const response = await axios.post('http://localhost/CheckEaseExp-NEW/vue-login-backend/createclass.php', {
           className: this.className,
           capacity: this.capacity,
         }, {
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${this.token}`,  // Pass the token
+            'Authorization': `Bearer ${this.token}`,  
           }
         });
 

@@ -86,9 +86,19 @@
       </ul>
 
       <!-- Logout Icon Fixed at Bottom -->
-      <div class="logout-icon" @click="logout">
+      <div class="logout-icon" @click="confirmLogout">
         <i class="material-icons">exit_to_app</i> <b>Logout</b>
       </div>
+      <div v-if="showDialog" class="dialog-overlay">
+      <div class="dialog">
+        <h2>Do you want to Logout?</h2>
+        <p>Are you sure you want to logout?</p>
+        <div class="dialog-buttons">
+          <button @click="logout" class="dialog-confirm">YES</button>
+          <button @click="closeDialog" class="dialog-cancel">NO</button>
+        </div>
+      </div>
+    </div>
     </div>
   </div>
   
@@ -101,31 +111,44 @@ export default {
       isSidebarHidden: false,
       isAttendanceDropdownOpen: false,
       currentRoute: '/home',
+      showDialog: false,
     };
   },
+  
   mounted() {
-    // Combine the two mounted actions into one
     this.handleResize();
     this.loadUserInfo();
-    console.log(localStorage.getItem('email')); // Check if the email is correctly loaded from localStorage
+    console.log(localStorage.getItem('email')); 
     window.addEventListener('resize', this.handleResize);
   },
   beforeDestroy() {
     window.removeEventListener('resize', this.handleResize);
   },
   methods: {
+
     toggleSidebar() {
-      this.isSidebarHidden = !this.isSidebarHidden;
+      this.isCollapsed = !this.isCollapsed; 
+    },
+    confirmLogout() {
+      this.showDialog = true;
+    },
+    closeDialog() {
+      this.showDialog = false;
+    },
+    logout() {
+      localStorage.removeItem("authToken");
+      this.$router.push("/Login");
+      this.showDialog = false; 
+    },
+
+    toggleSidebar() {
+    this.isSidebarHidden = !this.isSidebarHidden;
     },
     toggleAttendanceDropdown() {
       this.isAttendanceDropdownOpen = !this.isAttendanceDropdownOpen;
     },
     handleResize() {
       this.isSidebarHidden = window.innerWidth < 768;
-    },
-    logout() {
-      localStorage.removeItem('authToken'); 
-      this.$router.push('/Login');
     },
     isActive(route) {
       return this.$route.path === route;
@@ -145,9 +168,72 @@ export default {
 
 
 <style scoped>
+.dialog-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7); 
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; 
+}
+
+.dialog {
+  background-color: #ffffff;
+  padding: 20px;
+  border-radius: 8px;
+  text-align: center;
+  width: 300px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+  border: 2px solid #e4e4e4;
+}
+
+.dialog h2 {
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.dialog-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.dialog-confirm, .dialog-cancel {
+  padding: 8px 16px;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s, transform 0.2s ease; 
+}
+
+.dialog-confirm {
+  background-color:#dc3545;
+  color: white;
+  border-radius: 4px;
+}
+
+.dialog-cancel {
+  background-color: #007bff;
+  color: white;
+  border-radius: 4px;
+}
+
+/* Hover effects */
+.dialog-confirm:hover {
+  background-color: #c82333; 
+  transform: scale(1.1); 
+}
+
+.dialog-cancel:hover {
+  background-color: #0056b3; 
+  transform: scale(1.1); 
+}
 .sidebar {
   background-color: #DBF4F8;
-  
   color: #000;
   position: fixed;
   top: 0;
@@ -235,7 +321,7 @@ button {
     top: 0;
     left: 0;
     box-shadow: none;
-    z-index: 1000; /* Ensure sidebar is above other content */
+    z-index: 1000; 
   }
 
   .sidebar-hidden {

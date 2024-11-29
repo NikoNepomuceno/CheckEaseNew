@@ -17,13 +17,11 @@ $email = htmlspecialchars($data->email);
 $password = htmlspecialchars($data->password);
 
 try {
-    // Check if the email exists
     $stmt = $pdo->prepare("SELECT * FROM users WHERE email = :email");
     $stmt->execute(['email' => $email]);
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if ($user && password_verify($password, $user['password'])) {
-        // Generate token if not already present
         $token = $user['token'];
         if (empty($token)) {
             $token = bin2hex(random_bytes(16));  // Generate a new token
@@ -31,20 +29,20 @@ try {
             $updateTokenStmt->execute(['token' => $token, 'id' => $user['id']]);
         }
 
-        // Determine redirect URL based on role
-        $redirectUrl = $user['role'] === 'student' ? '/StudentHome' : '/Home';
+        $redirectUrl = $user['role'] === 'teacher' ? '/Home' : '/StudentHome';
 
-        // Respond with user details (including firstname, lastname)
         echo json_encode([
             'success' => true,
             'message' => 'Login successful',
             'token' => $token,
-            'redirect' => $redirectUrl,  // Redirect based on the role
-            'firstname' => $user['firstname'], // Ensure this column exists in your database
-            'lastname' => $user['lastname'],   // Ensure this column exists in your database
+            'redirect' => $redirectUrl,  
+            'firstname' => $user['firstname'], 
+            'lastname' => $user['lastname'],   
+            'email' => $user['email'],
+            'role' => $user['role'],
         ]);
+        
     } else {
-        // Invalid credentials
         echo json_encode(['success' => false, 'message' => 'Invalid email or password']);
     }
 } catch (PDOException $e) {
