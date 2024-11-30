@@ -67,6 +67,7 @@ export default {
   methods: {
     async submitForm() {
       try {
+        // Send login request to the backend
         const response = await axios.post('http://localhost/CheckEaseExp-NEW/vue-login-backend/login.php', {
           email: this.email,
           password: this.password,
@@ -75,35 +76,58 @@ export default {
         const result = response.data;
 
         if (result.success) {
-     
-          localStorage.setItem('token', result.token);  
-          localStorage.setItem('role', result.role); 
+          localStorage.setItem('token', result.token);
+          localStorage.setItem('role', result.role);
           localStorage.setItem('firstname', result.firstname);
           localStorage.setItem('lastname', result.lastname);
           localStorage.setItem('email', result.email);
-
           const fullName = `${result.firstname} ${result.lastname}`;
           localStorage.setItem('userFullName', fullName);
+          const decodedToken = this.decodeJWT(result.token);
 
-          if (result.role === 'teacher') {
-            this.$router.push({ name: 'Home' });
-          } else if (result.role === 'student') {
-            this.$router.push({ name: 'StudentHome' });
+          if (decodedToken && decodedToken.exp > Math.floor(Date.now() / 1000)) {
+  
+            localStorage.setItem('userId', decodedToken.data.id);
+            localStorage.setItem('userFirstName', decodedToken.data.firstname);
+            localStorage.setItem('userLastName', decodedToken.data.lastname);
+            localStorage.setItem('userEmail', decodedToken.data.email);
+            localStorage.setItem('userRole', decodedToken.data.role);
+
+            if (decodedToken.data.role === 'teacher') {
+              this.$router.push({ name: 'Home' });
+            } else if (decodedToken.data.role === 'student') {
+              this.$router.push({ name: 'StudentHome' });
+            } else {
+              console.warn('No role or redirect path specified in response.');
+            }
           } else {
-            console.warn('No role or redirect path specified in response.');
+            this.errorMessage = 'Your session has expired. Please log in again.';
           }
         } else {
-          // Display error message if login fails
-          this.errorMessage = 'The email address or password you entered is incorrect. Please verify your credentials and try again.';
+          this.errorMessage =
+            'The email address or password you entered is incorrect. Please verify your credentials and try again.';
         }
       } catch (error) {
         console.error('Error:', error);
         this.errorMessage = 'Something went wrong, please try again.';
       }
     },
+
+    decodeJWT(token) {
+      try {
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const decoded = JSON.parse(window.atob(base64));
+        return decoded;
+      } catch (error) {
+        console.error('Error decoding JWT:', error);
+        return null;
+      }
+    },
   },
 };
 </script>
+
 
 
 <style scoped>

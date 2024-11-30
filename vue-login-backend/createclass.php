@@ -11,8 +11,7 @@ ini_set('display_errors', 1);
 
 include 'db.php';
 use Firebase\JWT\JWT;
-
-$secretKey = 'ayawqna';  
+$secret_key = getenv('JWT_SECRET_KEY'); 
 
 session_start();
 
@@ -36,7 +35,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $jwt = $matches[1];
 
     try {
-        $decoded = JWT::decode($jwt, $secretKey, ['HS256']);
+        // Fix: Pass the algorithm as a value, not by reference
+        $decoded = JWT::decode($jwt, $secret_key, ['HS256']); // Use $secret_key here
         $userId = $decoded->user_id;
     } catch (Exception $e) {
         echo json_encode(['success' => false, 'error' => 'Invalid or expired token: ' . $e->getMessage()]);
