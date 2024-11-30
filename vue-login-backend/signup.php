@@ -6,9 +6,7 @@ header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST');
 header('Access-Control-Allow-Headers: Content-Type, Authorization');
 
-use \Firebase\JWT\JWT;
 include 'db.php';
-$secret_key = getenv('JWT_SECRET_KEY');
 
 $data = json_decode(file_get_contents("php://input"));
 if ($data === null) {
@@ -40,52 +38,22 @@ try {
         echo json_encode(['success' => false, 'message' => 'Email already registered']);
         exit;
     }
-    $token = bin2hex(random_bytes(32));
 
-    $sql = "INSERT INTO users (firstname, lastname, email, password, role, token) VALUES (:firstname, :lastname, :email, :password, :role, :token)";
+    $sql = "INSERT INTO users (firstname, lastname, email, password, role) VALUES (:firstname, :lastname, :email, :password, :role)";
     $stmt = $pdo->prepare($sql);
     $stmt->execute([
         'firstname' => $firstname,
         'lastname' => $lastname,
         'email' => $email,
         'password' => $password,
-        'role' => $role,
-        'token' => $token 
+        'role' => $role
     ]);
 
     if ($stmt->rowCount() > 0) {
-
-        $payload = [
-            "iss" => "http://localhost/CheckEaseExp-NEW/vue-login-backend/signup.php",  
-            "aud" => "http://localhost/CheckEaseExp-NEW/vue-login-backend/signup.php", 
-            "iat" => time(),
-            "exp" => time() + (60*60),  
-            "data" => [
-                "firstname" => $firstname,
-                "lastname" => $lastname,
-                "email" => $email,
-                "role" => $role
-            ]
-        ];
-
-        try {
-            $jwt = JWT::encode($payload, $secret_key, 'HS256');
-        } catch (Exception $e) {
-            error_log("JWT Encoding Error: " . $e->getMessage());
-            echo json_encode(['success' => false, 'message' => 'Error generating token']);
-            exit;
-        }
-
-        echo json_encode([
-            'success' => true,
-            'message' => 'User registered successfully',
-            'token' => $jwt,
-            'firstname' => $firstname
-        ]);
+        echo json_encode(['success' => true, 'message' => 'User registered successfully']);
     } else {
         echo json_encode(['success' => false, 'message' => 'Registration failed']);
     }
-
 } catch (PDOException $e) {
     error_log("Database error: " . $e->getMessage());
     echo json_encode(['success' => false, 'message' => 'Registration failed. Please try again later.']);

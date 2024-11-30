@@ -26,11 +26,12 @@ try {
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if ($user && password_verify($password, $user['password'])) {
+       
         $payload = [
             "iss" => "http://localhost/CheckEaseExp-NEW/vue-login-backend/login.php",  
             "aud" => "http://localhost/CheckEaseExp-NEW/vue-login-backend/login.php",  
             "iat" => time(), 
-            "exp" => time() + (60*60),  
+            "exp" => time() + (60*60),  // Token expiration time (1 hour)
             "data" => [
                 "id" => $user['id'],
                 "firstname" => $user['firstname'],
@@ -41,9 +42,10 @@ try {
         ];
 
         $jwt = JWT::encode($payload, $secret_key, 'HS256');
-
+        $updateStmt = $pdo->prepare("UPDATE users SET token = :token WHERE email = :email");
+        $updateStmt->execute(['token' => $jwt, 'email' => $email]);
         $redirectUrl = $user['role'] === 'teacher' ? '/Home' : '/StudentHome';
-
+        
         echo json_encode([
             'success' => true,
             'message' => 'Login successful',
