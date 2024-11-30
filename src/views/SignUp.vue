@@ -88,7 +88,7 @@
 </template>
 
 <script>
-import axios from 'axios'; // Ensure axios is imported
+import axios from 'axios'; 
 
 export default {
   name: 'SignUp',
@@ -164,12 +164,12 @@ export default {
           role: this.role,
         });
 
-        console.log(response.data); // Log the response data to check its structure
+        console.log(response.data);
 
         const result = response.data;
 
         if (result.success) {
-          // Store the email and other user details in localStorage
+        
           localStorage.setItem('token', result.token);
           localStorage.setItem('firstname', result.firstname);
           localStorage.setItem('lastname', result.lastname);
@@ -177,7 +177,7 @@ export default {
 
           this.$router.push('/login');
         } else {
-          alert(result.message); // Alert if there is a failure
+          alert(result.message); 
         }
       } catch (error) {
         alert(`Error: ${error.message}`);
@@ -185,7 +185,7 @@ export default {
     }
   },
   watch: {
-    // Watch for password and confirm password changes to check for mismatch
+    
     password(newVal) {
       this.passwordMismatch = this.password !== this.confirmPassword;
     },
@@ -195,9 +195,6 @@ export default {
   },
 };
 </script>
-
-
-
 
 <style scoped>
 body {

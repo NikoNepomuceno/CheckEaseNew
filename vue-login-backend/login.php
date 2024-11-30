@@ -1,15 +1,14 @@
 <?php
+require __DIR__ . '/vendor/autoload.php'; 
+
 header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST');
 header('Access-Control-Allow-Headers: Content-Type, Authorization');
 
-use \Firebase\JWT\JWT;
-
-require 'vendor/autoload.php';  
-include 'db.php';
-
-$secret_key = getenv('JWT_SECRET_KEY') ?: "ayawqna"; 
+use Firebase\JWT\JWT;
+include 'db.php'; 
+$secret_key = getenv('JWT_SECRET_KEY'); 
 
 $data = json_decode(file_get_contents("php://input"));
 
@@ -59,7 +58,6 @@ try {
         echo json_encode(['success' => false, 'message' => 'Invalid email or password']);
     }
 } catch (PDOException $e) {
- 
     error_log("Database error: " . $e->getMessage());
     echo json_encode(['success' => false, 'message' => 'An error occurred. Please try again later.']);
 }

@@ -30,3 +30,6 @@ coverage
 *.tsbuildinfo
 
 /vendor/
+
+# Environment variables
+.env

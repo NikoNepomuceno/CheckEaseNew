@@ -1,15 +1,14 @@
 <?php
 require __DIR__ . '/vendor/autoload.php'; 
+
 header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST');
 header('Access-Control-Allow-Headers: Content-Type, Authorization');
 
 use \Firebase\JWT\JWT;
-require 'vendor/autoload.php';
 include 'db.php';
-
-$secret_key = getenv('JWT_SECRET_KEY') ?: "your_default_secret_key"; 
+$secret_key = getenv('JWT_SECRET_KEY');
 
 $data = json_decode(file_get_contents("php://input"));
 if ($data === null) {
@@ -68,6 +67,7 @@ try {
                 "role" => $role
             ]
         ];
+
         try {
             $jwt = JWT::encode($payload, $secret_key, 'HS256');
         } catch (Exception $e) {
