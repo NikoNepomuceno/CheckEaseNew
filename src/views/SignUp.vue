@@ -47,7 +47,8 @@
                   <div v-if="lastnameError" class="text-danger">{{ lastnameError }}</div>
                 </div>
                 <div v-if="nameError" class="col-12 text-danger">
-                {{ nameError }} </div>
+                  {{ nameError }} 
+                </div>
               </div>
 
               <div class="mb-2">
@@ -59,7 +60,6 @@
               <div class="mb-2">
                 <label for="password" class="form-label">Password</label>
                 <input type="password" id="password" v-model="password" class="form-control" />
-            
               </div>
 
               <div class="mb-2 text-start">
@@ -104,6 +104,8 @@ export default {
       firstnameError: '',
       lastnameError: '',
       nameError: '', 
+      roleError: '',
+      emailError:'',
       showInfoSection: true,
     };
   },
@@ -162,18 +164,20 @@ export default {
           role: this.role,
         });
 
+        console.log(response.data); // Log the response data to check its structure
+
         const result = response.data;
 
         if (result.success) {
           // Store the email and other user details in localStorage
-          localStorage.setItem('jwtToken', result.token);
+          localStorage.setItem('token', result.token);
           localStorage.setItem('firstname', result.firstname);
           localStorage.setItem('lastname', result.lastname);
-          localStorage.setItem('email', result.email);  // Store email here
+          localStorage.setItem('email', result.email);  
 
           this.$router.push('/login');
         } else {
-          alert(result.message);
+          alert(result.message); // Alert if there is a failure
         }
       } catch (error) {
         alert(`Error: ${error.message}`);
@@ -191,6 +195,7 @@ export default {
   },
 };
 </script>
+
 
 
 

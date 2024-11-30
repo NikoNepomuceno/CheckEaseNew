@@ -9,7 +9,7 @@ use \Firebase\JWT\JWT;
 require 'vendor/autoload.php';  
 include 'db.php';
 
-$secret_key = getenv('JWT_SECRET_KEY') ?: "your_default_secret_key"; 
+$secret_key = getenv('JWT_SECRET_KEY') ?: "ayawqna"; 
 
 $data = json_decode(file_get_contents("php://input"));
 
@@ -28,10 +28,10 @@ try {
 
     if ($user && password_verify($password, $user['password'])) {
         $payload = [
-            "iss" => "http://localhost/CheckEaseExp-NEW/vue-login-backend/login.php",  // Issuer
-            "aud" => "http://localhost/CheckEaseExp-NEW/vue-login-backend/login.php",  // Audience
-            "iat" => time(),  // Issued at
-            "exp" => time() + (60*60),  // Expiration time (1 hour)
+            "iss" => "http://localhost/CheckEaseExp-NEW/vue-login-backend/login.php",  
+            "aud" => "http://localhost/CheckEaseExp-NEW/vue-login-backend/login.php",  
+            "iat" => time(), 
+            "exp" => time() + (60*60),  
             "data" => [
                 "id" => $user['id'],
                 "firstname" => $user['firstname'],

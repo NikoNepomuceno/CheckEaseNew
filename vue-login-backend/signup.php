@@ -7,7 +7,6 @@ header('Access-Control-Allow-Headers: Content-Type, Authorization');
 
 use \Firebase\JWT\JWT;
 require 'vendor/autoload.php';
-
 include 'db.php';
 
 $secret_key = getenv('JWT_SECRET_KEY') ?: "your_default_secret_key"; 
@@ -42,38 +41,50 @@ try {
         echo json_encode(['success' => false, 'message' => 'Email already registered']);
         exit;
     }
-    $sql = "INSERT INTO users (firstname, lastname, email, password, role) VALUES (:firstname, :lastname, :email, :password, :role)";
+    $token = bin2hex(random_bytes(32));
+
+    $sql = "INSERT INTO users (firstname, lastname, email, password, role, token) VALUES (:firstname, :lastname, :email, :password, :role, :token)";
     $stmt = $pdo->prepare($sql);
     $stmt->execute([
         'firstname' => $firstname,
         'lastname' => $lastname,
         'email' => $email,
         'password' => $password,
-        'role' => $role
+        'role' => $role,
+        'token' => $token 
     ]);
 
-    $payload = [
-        "iss" => "http://localhost/CheckEaseExp-NEW/vue-login-backend/signup.php",  // Issuer
-        "aud" => "http://localhost/CheckEaseExp-NEW/vue-login-backend/signup.php",  // Audience
-        "iat" => time(),  // Issued at
-        "exp" => time() + (60*60),  // Expiration time (1 hour)
-        "data" => [
-            "firstname" => $firstname,
-            "lastname" => $lastname,
-            "email" => $email,
-            "role" => $role
-        ]
-    ];
+    if ($stmt->rowCount() > 0) {
 
-    $jwt = JWT::encode($payload, $secret_key, 'HS256');
+        $payload = [
+            "iss" => "http://localhost/CheckEaseExp-NEW/vue-login-backend/signup.php",  
+            "aud" => "http://localhost/CheckEaseExp-NEW/vue-login-backend/signup.php", 
+            "iat" => time(),
+            "exp" => time() + (60*60),  
+            "data" => [
+                "firstname" => $firstname,
+                "lastname" => $lastname,
+                "email" => $email,
+                "role" => $role
+            ]
+        ];
+        try {
+            $jwt = JWT::encode($payload, $secret_key, 'HS256');
+        } catch (Exception $e) {
+            error_log("JWT Encoding Error: " . $e->getMessage());
+            echo json_encode(['success' => false, 'message' => 'Error generating token']);
+            exit;
+        }
 
-
-    echo json_encode([
-        'success' => true,
-        'message' => 'User registered successfully',
-        'token' => $jwt,
-        'firstname' => $firstname
-    ]);
+        echo json_encode([
+            'success' => true,
+            'message' => 'User registered successfully',
+            'token' => $jwt,
+            'firstname' => $firstname
+        ]);
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Registration failed']);
+    }
 
 } catch (PDOException $e) {
     error_log("Database error: " . $e->getMessage());
