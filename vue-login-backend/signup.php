@@ -1,5 +1,6 @@
 <?php
-header('Content-Type: utf-8');
+require __DIR__ . '/vendor/autoload.php'; 
+header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST');
 header('Access-Control-Allow-Headers: Content-Type, Authorization');
@@ -9,7 +10,7 @@ require 'vendor/autoload.php';
 
 include 'db.php';
 
-$secret_key = "your_secret_key"; // Keep it secure
+$secret_key = getenv('JWT_SECRET_KEY') ?: "your_default_secret_key"; 
 
 $data = json_decode(file_get_contents("php://input"));
 if ($data === null) {
@@ -17,7 +18,6 @@ if ($data === null) {
     exit;
 }
 
-// Validate input data
 if (empty($data->firstname) || empty($data->lastname) || empty($data->email) || empty($data->password) || empty($data->role)) {
     echo json_encode(['success' => false, 'message' => 'All fields are required']);
     exit;
@@ -35,7 +35,6 @@ $password = password_hash($data->password, PASSWORD_DEFAULT);
 $role = htmlspecialchars($data->role);
 
 try {
-
     $stmt = $pdo->prepare("SELECT * FROM users WHERE email = :email");
     $stmt->execute(['email' => $email]);
     
@@ -43,8 +42,6 @@ try {
         echo json_encode(['success' => false, 'message' => 'Email already registered']);
         exit;
     }
-
-    // Insert user into database
     $sql = "INSERT INTO users (firstname, lastname, email, password, role) VALUES (:firstname, :lastname, :email, :password, :role)";
     $stmt = $pdo->prepare($sql);
     $stmt->execute([
@@ -55,12 +52,11 @@ try {
         'role' => $role
     ]);
 
-    // Generate JWT token after signup
     $payload = [
-        "iss" => "http://localhost:3000/vue-login-backend/signup.php",
-        "aud" => "http://localhost:3000/vue-login-backend/signup.php",
-        "iat" => time(),
-        "exp" => time() + (60*60), // Token expiration time (1 hour)
+        "iss" => "http://localhost/CheckEaseExp-NEW/vue-login-backend/signup.php",  // Issuer
+        "aud" => "http://localhost/CheckEaseExp-NEW/vue-login-backend/signup.php",  // Audience
+        "iat" => time(),  // Issued at
+        "exp" => time() + (60*60),  // Expiration time (1 hour)
         "data" => [
             "firstname" => $firstname,
             "lastname" => $lastname,
@@ -71,8 +67,16 @@ try {
 
     $jwt = JWT::encode($payload, $secret_key, 'HS256');
 
-    echo json_encode(['success' => true, 'message' => 'User registered successfully', 'token' => $jwt, 'firstname' => $firstname]);
+
+    echo json_encode([
+        'success' => true,
+        'message' => 'User registered successfully',
+        'token' => $jwt,
+        'firstname' => $firstname
+    ]);
 
 } catch (PDOException $e) {
-    echo json_encode(['success' => false, 'message' => 'Registration failed.']);
+    error_log("Database error: " . $e->getMessage());
+    echo json_encode(['success' => false, 'message' => 'Registration failed. Please try again later.']);
 }
+?>

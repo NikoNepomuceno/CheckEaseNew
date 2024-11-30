@@ -1,0 +1,14 @@
+{
+    "name": "admin/checkeaseexp",
+    "description": "A project for handling Check Ease operations",
+    "type": "project",
+    "authors": [
+        {
+            "name": "Mark Silla",
+            "email": "marksilla12@gmail.com"
+        }
+    ],
+    "require": {
+        "firebase/php-jwt": "^6.10"
+    }
+}

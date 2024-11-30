@@ -75,16 +75,13 @@ export default {
         const result = response.data;
 
         if (result.success) {
-         
+     
           localStorage.setItem('token', result.token);  
           localStorage.setItem('role', result.role); 
-
-          // Optional: Store additional user information (e.g., name or email)
           localStorage.setItem('firstname', result.firstname);
           localStorage.setItem('lastname', result.lastname);
           localStorage.setItem('email', result.email);
 
-      
           const fullName = `${result.firstname} ${result.lastname}`;
           localStorage.setItem('userFullName', fullName);
 
@@ -96,11 +93,10 @@ export default {
             console.warn('No role or redirect path specified in response.');
           }
         } else {
-  
+          // Display error message if login fails
           this.errorMessage = 'The email address or password you entered is incorrect. Please verify your credentials and try again.';
         }
       } catch (error) {
-       
         console.error('Error:', error);
         this.errorMessage = 'Something went wrong, please try again.';
       }

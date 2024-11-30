@@ -51,22 +51,23 @@ export default {
     return {
       className: '',
       capacity: '',
-      classes: [],
-      capacityError: '',  
-      token: localStorage.getItem('token') || '',  
+      classes: [], // List of created classes
+      capacityError: '', // Error for invalid capacity
+      token: localStorage.getItem('token') || '', 
     };
   },
   methods: {
     async createClass() {
+      // Clear previous error
       this.capacityError = '';
-      
+
+      // Validate inputs
       if (!this.className || !this.capacity) {
         this.capacityError = 'Missing class name or capacity';
         return;
       }
 
-      // Ensure capacity is a positive number
-      if (this.capacity <= 0) {
+      if (this.capacity <= 0 || isNaN(this.capacity)) {
         this.capacityError = 'Capacity must be a positive number';
         return;
       }
@@ -77,17 +78,22 @@ export default {
       }
 
       try {
-        const response = await axios.post('http://localhost/CheckEaseExp-NEW/vue-login-backend/createclass.php', {
-          className: this.className,
-          capacity: this.capacity,
-        }, {
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${this.token}`,  
+        // Make the POST request to create the class
+        const response = await axios.post(
+          'http://localhost/CheckEaseExp-NEW/vue-login-backend/createclass.php',
+          {
+            class_name: this.className, 
+            capacity: this.capacity,
+          },
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${this.token}`, 
+            },
           }
-        });
+        );
 
-        const result = response.data;
+        const result = response.data; 
         console.log('Response Data:', result);
 
         if (result.success) {
@@ -105,12 +111,13 @@ export default {
         }
       } catch (error) {
         console.error('Error:', error);
-        alert('Error occurred while creating the class.');
+        alert('An error occurred while creating the class.');
       }
     },
   },
 };
 </script>
+
 
 
 <style scoped>

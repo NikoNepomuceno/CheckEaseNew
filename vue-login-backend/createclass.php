@@ -1,4 +1,6 @@
 <?php
+require __DIR__ . '/vendor/autoload.php';
+
 header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST');
@@ -7,35 +9,41 @@ header('Access-Control-Allow-Headers: Content-Type, Authorization');
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-include 'db.php';  
-use \Firebase\JWT\JWT;
+include 'db.php';
+use Firebase\JWT\JWT;
 
 $secretKey = 'ayawqna';  
 
 session_start();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
     $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
+    if (empty($authHeader)) {
+        $headers = apache_request_headers();
+        $authHeader = $headers['Authorization'] ?? '';
+    }
+
     if (empty($authHeader)) {
         echo json_encode(['success' => false, 'error' => 'Authorization token missing or malformed']);
         exit;
     }
 
-    list($jwt) = sscanf($authHeader, 'Bearer %s');
-    if (empty($jwt)) {
+    if (!preg_match('/Bearer\s(\S+)/', $authHeader, $matches)) {
         echo json_encode(['success' => false, 'error' => 'Authorization token missing']);
         exit;
     }
 
+    $jwt = $matches[1];
+
     try {
         $decoded = JWT::decode($jwt, $secretKey, ['HS256']);
-        $userId = $decoded->user_id; 
+        $userId = $decoded->user_id;
     } catch (Exception $e) {
         echo json_encode(['success' => false, 'error' => 'Invalid or expired token: ' . $e->getMessage()]);
         exit;
     }
-
+    
+    // Parse JSON input
     $postData = json_decode(file_get_contents('php://input'), true);
     if (empty($postData)) {
         echo json_encode(['success' => false, 'error' => 'Invalid input data']);
@@ -45,13 +53,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $className = trim($postData['class_name'] ?? '');
     $capacity = trim($postData['capacity'] ?? '');
 
+    // Validate input
     if (empty($className) || !is_numeric($capacity) || $capacity <= 0) {
         echo json_encode(['success' => false, 'error' => 'Invalid class name or capacity']);
         exit;
     }
 
     $classCode = strtoupper(substr(md5(uniqid(rand(), true)), 0, 6));
+
     try {
+        // Prepare and execute the query
         $query = "INSERT INTO classes (class_name, capacity, class_code, created_by, created_at) 
                   VALUES (:class_name, :capacity, :class_code, :created_by, NOW())";
         $stmt = $pdo->prepare($query);
